@@ -1,37 +1,14 @@
-## local development
+## web search
 
-### assumptions
-- ollama is installed locally and running at `http://localhost:11434`
-- docker is configured 
-    - I use colima on macos (m2)
-    - docker compose is installed
+generate [a perplexity api key](https://docs.perplexity.ai/guides/getting-started) and paste it into the web search settings of the openwebui service once it's running (with the perplexity search provider selected) to enable web search using perplexity's api.
 
-to expose to the public internet you can configure [a cloudflare tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) that routes traffic to `http://webui:8080`.
+## recommended models
 
-create a .env file with [a cloudflare tunnel token(https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)]:
+| model name | description | use |
+|- | - | - |
+| [dolphin3:8b](https://ollama.com/library/dolphin3) | fine tuned llama3.1:8b with model use guidelines removed | when the content restrictions of commercial llms would interfere with a useful query |
+| [qwen3:14b](https://ollama.com/library/qwen3) | cutting edge reasoning model for general use, coding, and tool use | useful for complex reasoning tasks, coding, and tool use like web browsing or mcp servers |
 
-```sh
-TUNNEL_TOKEN=your_token_here
+## run it yourself
 
-```
-
-bring up the docker compose stack:
-
-```sh
-
-docker compose up -d
-```
-
-the webui will be available locally at `http://localhost:3000`.
-
-follow the logs:
-
-```sh
-docker compose logs -f
-```
-
-backup db:
-
-```sh
-colima ssh -- 'tar czf - /var/lib/docker/volumes/webui/_data' > webui-backup.tgz
-```
+see [the the local development docs](./local-development.md).
