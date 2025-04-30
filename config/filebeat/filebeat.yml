@@ -1,0 +1,20 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/*.log
+  exclude_lines:
+    - "^[[:space:]]*#"
+  processors:
+    - add_host_metadata:
+        when:
+          not_empty:
+            - "host"
+    - add_cloud_metadata:
+    - add_docker_metadata:
+        when:
+          not_empty:
+            - "container.id"
+
+output.logstash:
+  hosts: ["logstash:5044"]

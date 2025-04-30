@@ -5,6 +5,11 @@ services:
   #   volumes:
   #     - ollama:/root/.ollama
   #   restart: unless-stopped
+  #    deploy:
+  #      resources:
+  #        reservations:
+  #          devices:
+  #            - capabilities: [gpu]
 
   webui:
     image: ghcr.io/open-webui/open-webui:main
@@ -29,6 +34,42 @@ services:
       - .env
     restart: unless-stopped
 
+  proxy:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+
+  elasticsearch:
+    image: elasticsearch:8.8.0
+    ports: [ "9200:9200" ]
+    depends_on: [ proxy ]
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  logstash:
+    image: logstash:8.8.0
+    ports: [ "5044:5044" ]
+    depends_on: [ proxy, elasticsearch ]
+    volumes:
+      - ./config/logstash/logstash.conf:/usr/share/logstash/config/logstash.conf
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.8.0
+    depends_on: [ proxy, logstash ]
+    volumes:
+      - ./config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml
+
+  kibana:
+    image: kibana:8.8.0
+    ports: [ "5601:5601" ]
+    depends_on: [ proxy, elasticsearch ]
+
 volumes:
   # ollama:
   webui:
+  esdata:
